@@ -5,9 +5,10 @@ import java.util.*;
 
 class Mancala {
 
-        private Integer[] board, playerOneBoard, playerTwoBoard;
+        private Integer[] board;
 
         private boolean IsPlayerOne = true;
+        private boolean _IsGameOver = false;
 
         Mancala(){
 
@@ -36,6 +37,7 @@ class Mancala {
 
         public boolean move(int location){
 
+                if(IsGameOver()){return false;}
                 if(location < 0 || location > 5){return false;}
 
                 location = (IsPlayerOne) ? location : (5 - location);
@@ -50,13 +52,56 @@ class Mancala {
                 startAt++;
 
                 for(int i = 0; i < beads; i++){
-                        board[startAt] += 1;
-                        startAt++;
 
+                        if(!(
+                                (IsPlayerOne && startAt == 13) ||
+                                (!IsPlayerOne && startAt == 6)
+                        )){
+                                board[startAt] += 1;
+                        }else{
+                                i--;
+                        }
+
+                        startAt++;
                         if(startAt == 14){startAt = 0;}
                 }
 
-                IsPlayerOne = !IsPlayerOne;
+                int currentIndex = startAt - 1;
+                int oppositeIndex = 12 - currentIndex;
+
+                if(currentIndex != -1 && currentIndex != 6 && board[currentIndex] == 1 &&
+                        (
+                                (IsPlayerOne && currentIndex >= 0 && currentIndex <= 5) ||
+                                (!IsPlayerOne && currentIndex >= 7 && currentIndex <= 12)
+                        )
+                ){
+                        board[currentIndex] += board[oppositeIndex];
+                        board[oppositeIndex] = 0;
+                }
+
+                if(
+                        !((IsPlayerOne && (startAt == 7)) ||
+                        (!IsPlayerOne && (startAt == 0)))
+                ){
+                        IsPlayerOne = !IsPlayerOne;
+                }
+
+                if(gatherAllBeads(true) == 0){
+                        for(int i = 7; i <= 12; i++){
+                                board[13] += board[i];
+                                board[i] = 0;
+                        }
+
+                        _IsGameOver = true;
+
+                } else if(gatherAllBeads(false) == 0){
+                        for(int i = 0; i <= 5; i++){
+                                board[6] += board[i];
+                                board[i] = 0;
+                        }
+
+                        _IsGameOver = true;
+                }
 
                 return true;
 
@@ -66,6 +111,16 @@ class Mancala {
 
                 String strBeadCount = Integer.toString(beadCount);
                 return (strBeadCount.length() == 1) ? ("0" + strBeadCount) : strBeadCount;
+        }
+
+        public String status(){
+                if(!IsGameOver()){return "Game is on, it's " + whoseTurn();}
+                if(board[6] == board[12]){return "It's a tie!";}
+                return (board[6] > board[13]) ? "Player One Won!" : "Player Two Won!";
+        }
+
+        public String whoseTurn(){
+                return (IsPlayerOne) ? "Player One's Turn" : "Player Two's Turn";
         }
 
         private void printPlayer(boolean _IsPlayerOne){
@@ -95,6 +150,8 @@ class Mancala {
                 //   ----------------------<<----------------------
                 //      -----------------------------------------
 
+                System.out.println(status());
+
                 System.out.println("     -----------------------------------------    ");
                 System.out.println("  ---------------------->>----------------------  ");
 
@@ -114,7 +171,7 @@ class Mancala {
         }
 
         public boolean IsGameOver(){
-                return false;
+                return _IsGameOver;
         }
 
         public static void main(String[] args){
