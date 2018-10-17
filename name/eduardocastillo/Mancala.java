@@ -69,7 +69,7 @@ class Mancala {
                 int currentIndex = startAt - 1;
                 int oppositeIndex = 12 - currentIndex;
 
-                if(currentIndex != -1 && currentIndex != 6 && board[currentIndex] == 1 &&
+                if(beads > 6 && currentIndex != -1 && currentIndex != 6 && board[currentIndex] == 1 &&
                         (
                                 (IsPlayerOne && currentIndex >= 0 && currentIndex <= 5) ||
                                 (!IsPlayerOne && currentIndex >= 7 && currentIndex <= 12)
